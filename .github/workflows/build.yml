@@ -21,20 +21,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      # Ensure pnpm is on PATH for macOS/Linux
-      - name: Ensure pnpm is on PATH (macOS/Linux)
+      # Install pnpm manually for Linux/macOS
+      - name: Install pnpm (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
           npm install -g pnpm
-          echo "Adding pnpm to PATH"
           echo "$(npm bin -g)" >> $GITHUB_PATH
+
+      # Install pnpm manually for Windows
+      - name: Install pnpm (Windows)
+        if: runner.os == 'Windows'
+        run: npm install -g pnpm
 
       - name: Verify pnpm
         run: pnpm -v
