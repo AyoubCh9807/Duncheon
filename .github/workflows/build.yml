@@ -28,6 +28,17 @@ jobs:
         with:
           version: 8
 
+      # Ensure pnpm is on PATH for macOS/Linux
+      - name: Ensure pnpm is on PATH (macOS/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          npm install -g pnpm
+          echo "Adding pnpm to PATH"
+          echo "$(npm bin -g)" >> $GITHUB_PATH
+
+      - name: Verify pnpm
+        run: pnpm -v
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
