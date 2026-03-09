@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -32,16 +32,18 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Install OS dependencies
-        if: runner.os == 'Linux'
-        run: sudo pacman -S --noconfirm mingw-w64-gcc
+      - name: Install OS dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install -y libwebkit2gtk-4.1-dev build-essential pkg-config curl
 
       - name: Install Dependencies
         run: pnpm install
 
       - name: Build Tauri App
         run: |
-          if [ $RUNNER_OS = "Windows" ]; then
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
             rustup target add x86_64-pc-windows-gnu
             pnpm tauri build --target x86_64-pc-windows-gnu
           else
@@ -49,7 +51,7 @@ jobs:
           fi
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: duncheon-${{ runner.os }}
+          name: duncheon-${{ matrix.os }}
           path: src-tauri/target/release/bundle/
