@@ -22,20 +22,22 @@ jobs:
         with:
           node-version: '20'
 
-      # Install pnpm manually for Linux/macOS
+      # Install pnpm for Linux/macOS
       - name: Install pnpm (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
           npm install -g pnpm
           echo "$(npm bin -g)" >> $GITHUB_PATH
 
-      # Install pnpm manually for Windows
+      # Install pnpm for Windows
       - name: Install pnpm (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: npm install -g pnpm
 
       - name: Verify pnpm
         run: pnpm -v
+        shell: bash
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -51,15 +53,19 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+        shell: bash
 
-      - name: Build Tauri App
+      - name: Build Tauri App (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: pnpm tauri build
+        shell: bash
+
+      - name: Build Tauri App (Windows)
+        if: runner.os == 'Windows'
         run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            rustup target add x86_64-pc-windows-gnu
-            pnpm tauri build --target x86_64-pc-windows-gnu
-          else
-            pnpm tauri build
-          fi
+          rustup target add x86_64-pc-windows-gnu
+          pnpm tauri build --target x86_64-pc-windows-gnu
+        shell: pwsh
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
