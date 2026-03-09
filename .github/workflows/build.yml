@@ -1,0 +1,55 @@
+name: Duncheon Build
+
+on:
+  push:
+    tags:
+      - 'v*'          # Build on version tags like v0.1.0
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install OS dependencies
+        if: runner.os == 'Linux'
+        run: sudo pacman -S --noconfirm mingw-w64-gcc
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build Tauri App
+        run: |
+          if [ $RUNNER_OS = "Windows" ]; then
+            rustup target add x86_64-pc-windows-gnu
+            pnpm tauri build --target x86_64-pc-windows-gnu
+          else
+            pnpm tauri build
+          fi
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: duncheon-${{ runner.os }}
+          path: src-tauri/target/release/bundle/

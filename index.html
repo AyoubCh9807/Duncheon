@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duncheon - Procedural Dungeon Generator</title>
+</head>
+
+<body data-theme="cyan">
+  <div class="app-container">
+    <!-- Title Bar -->
+    <div class="window-header">
+      <div class="window-title">
+        <div class="logo-small"></div>
+        <span>DUNCHEON - Procedural Dungeon Generator</span>
+      </div>
+      <div class="theme-selector">
+        <div class="theme-dot cyan active" data-theme="cyan"></div>
+        <div class="theme-dot emerald" data-theme="emerald"></div>
+        <div class="theme-dot gold" data-theme="gold"></div>
+        <div class="theme-dot ruby" data-theme="ruby"></div>
+      </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="main-header">
+      <div class="tech-banner">
+        <div class="logo-small" style="width: 40px; height: 40px;"></div>
+        <h1 class="main-logo">DUNCHEON</h1>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="main-content">
+      <!-- Sidebar Controls -->
+      <aside class="sidebar">
+        <div class="control-group">
+          <div class="control-header">
+            <label class="control-label">Algorithm</label>
+          </div>
+          <select id="algorithm" class="tech-input">
+            <option value="rooms">BSP Rooms</option>
+            <option value="ca">Cellular Automata (Caves)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label class="control-label">Seed</label>
+            <button id="copy-seed" class="copy-btn">📋 Copy</button>
+          </div>
+          <div class="seed-input-container">
+            <input type="text" id="seed" class="tech-input" placeholder="Random..." />
+            <button id="refresh-seed" class="refresh-btn">⟳</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Map Dimensions</label>
+          <div class="slider-container">
+            <span class="slider-limit">W</span>
+            <input type="range" id="map-width" min="20" max="200" value="60" />
+            <span class="slider-limit" id="width-val">60</span>
+          </div>
+          <div class="slider-container">
+            <span class="slider-limit">H</span>
+            <input type="range" id="map-height" min="20" max="200" value="40" />
+            <span class="slider-limit" id="height-val">40</span>
+          </div>
+        </div>
+
+        <div id="rooms-controls">
+          <div class="control-group">
+            <label class="control-label">Room Count</label>
+            <div class="slider-container">
+              <span class="slider-limit">5</span>
+              <input type="range" id="room-count" min="5" max="100" value="15" />
+              <span class="slider-limit" id="room-count-val">15</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Room Padding</label>
+            <div class="slider-container">
+              <span class="slider-limit">0</span>
+              <input type="range" id="room-padding" min="0" max="5" value="1" />
+              <span class="slider-limit" id="padding-val">1</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Corridor Width</label>
+            <div class="slider-container">
+              <span class="slider-limit">1</span>
+              <input type="range" id="corridor-density" min="1" max="4" step="1" value="1" />
+              <span class="slider-limit" id="density-val">1</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Room Size</label>
+            <div class="size-selector">
+              <button class="size-btn" data-size="small">S</button>
+              <button class="size-btn active" data-size="medium">M</button>
+              <button class="size-btn" data-size="large">L</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="generate-btn" class="generate-btn">
+          <span class="icon">⚡</span> GENERATE
+        </button>
+
+        <div class="control-group">
+          <label class="control-label">Storage</label>
+          <div class="export-panel">
+            <button id="open-save-modal" class="export-btn">💾 SAVE</button>
+            <button id="open-load-modal" class="export-btn">📂 LOAD</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Preview Area -->
+      <section class="preview-container">
+        <div class="preview-header">Canvas Dungeon Preview</div>
+        <div class="canvas-wrapper" id="canvas-wrapper">
+          <canvas id="dungeon-canvas"></canvas>
+          <div class="canvas-controls">
+            <button class="canvas-tool" id="zoom-in">+</button>
+            <button class="canvas-tool" id="zoom-out">-</button>
+            <button class="canvas-tool" id="reset-view">↺</button>
+          </div>
+          <div class="status-bar">
+            STATUS: <span id="main-status">READY</span> | Zoom: <span id="zoom-status">100%</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modals -->
+    <div id="save-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>DATA ARCHIVE</h2>
+          <button class="close-modal">&times;</button>
+        </div>
+        <p class="modal-desc">Select export protocol for the current sector:</p>
+        <div class="modal-options">
+          <button id="export-png-modal" class="modal-opt-btn">
+            <span class="opt-icon">🖼️</span>
+            <div class="opt-text">
+              <span class="opt-title">VISUAL MAP (PNG)</span>
+              <span class="opt-sub">High-resolution image export</span>
+            </div>
+          </button>
+          <button id="export-json-modal" class="modal-opt-btn">
+            <span class="opt-icon">📦</span>
+            <div class="opt-text">
+              <span class="opt-title">CORE DATA (JSON)</span>
+              <span class="opt-sub">Full structural coordinates archive</span>
+            </div>
+          </button>
+          <button id="export-zip-modal" class="modal-opt-btn">
+            <span class="opt-icon">🤐</span>
+            <div class="opt-text">
+              <span class="opt-title">SAVE ARCHIVE (.ZIP)</span>
+              <span class="opt-sub">Both Visual Map and Core Data</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="load-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>SYS RESTORE</h2>
+          <button class="close-modal">&times;</button>
+        </div>
+        <p class="modal-desc">Upload core data archive to initialize restoration:</p>
+        <div class="load-zone" id="drop-zone">
+          <input type="file" id="modal-json-input" accept=".json" style="display: none;" />
+          <button id="select-json-btn" class="modal-opt-btn" style="width: 100%;">
+            <span class="opt-icon">📂</span>
+            <div class="opt-text">
+              <span class="opt-title">SELECT DATA FILE</span>
+              <span class="opt-sub">Supported format: .json</span>
+            </div>
+          </button>
+        </div>
+        <div id="load-preview" class="load-preview-card" style="display: none;">
+          <div class="preview-mini-map">
+            <canvas id="preview-canvas"></canvas>
+          </div>
+          <div class="preview-info">
+            <span id="preview-filename">MyDungeon.json</span>
+            <span id="preview-details">60x40 | 15 Rooms</span>
+          </div>
+          <button id="confirm-load-btn" class="generate-btn" style="font-size: 0.9rem; padding: 10px;">RESTORE
+            DATA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
