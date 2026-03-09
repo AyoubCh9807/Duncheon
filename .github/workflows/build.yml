@@ -3,8 +3,8 @@ name: Duncheon Build
 on:
   push:
     tags:
-      - 'v*'          # Build on version tags like v0.1.0
-  workflow_dispatch:  # Allows manual trigger
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,8 +23,10 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
