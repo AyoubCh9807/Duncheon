@@ -1,3 +1,4 @@
+```yaml
 name: Duncheon Build
 
 on:
@@ -22,30 +23,16 @@ jobs:
         with:
           node-version: '20'
 
-      # Install pnpm for Linux/macOS
-      - name: Install pnpm (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          npm install -g pnpm
-          echo "$(npm bin -g)" >> $GITHUB_PATH
-
-      # Install pnpm for Windows
-      - name: Install pnpm (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+      - name: Install pnpm
         run: npm install -g pnpm
 
       - name: Verify pnpm
         run: pnpm -v
-        shell: bash
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
-      # Linux dependencies for Tauri + AppImage
+      # Linux dependencies for Tauri
       - name: Install OS dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -62,22 +49,13 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
-        shell: bash
 
-      - name: Build Tauri App (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Build Tauri App
         run: pnpm tauri build
-        shell: bash
-
-      - name: Build Tauri App (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          rustup target add x86_64-pc-windows-gnu
-          pnpm tauri build --target x86_64-pc-windows-gnu
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: duncheon-${{ matrix.os }}
           path: src-tauri/target/release/bundle/
+```
