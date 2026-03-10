@@ -57,4 +57,3 @@ jobs:
         with:
           name: duncheon-${{ matrix.os }}
           path: src-tauri/target/release/bundle/
-```
