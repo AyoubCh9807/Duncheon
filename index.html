@@ -40,10 +40,33 @@
           <div class="control-header">
             <label class="control-label">Algorithm</label>
           </div>
-          <select id="algorithm" class="tech-input">
-            <option value="rooms">BSP Rooms</option>
-            <option value="ca">Cellular Automata (Caves)</option>
-          </select>
+          <div class="algo-selector" id="algo-selection">
+            <button class="algo-btn active" data-algo="rooms">
+              <span class="algo-icon">🏢</span>
+              <span class="algo-tooltip">BSP Rooms</span>
+            </button>
+            <button class="algo-btn" data-algo="caves">
+              <span class="algo-icon">🧗</span>
+              <span class="algo-tooltip">Organic Caves</span>
+            </button>
+            <button class="algo-btn" data-algo="maze">
+              <span class="algo-icon">🌀</span>
+              <span class="algo-tooltip">Labyrinth</span>
+            </button>
+            <button class="algo-btn" data-algo="ruins">
+              <span class="algo-icon">🏛️</span>
+              <span class="algo-tooltip">Ancient Ruins</span>
+            </button>
+            <button class="algo-btn" data-algo="drunkard">
+              <span class="algo-icon">🚶</span>
+              <span class="algo-tooltip">Drunkard Walk</span>
+            </button>
+            <button class="algo-btn" data-algo="wfc">
+              <span class="algo-icon">🧩</span>
+              <span class="algo-tooltip">WFC Pattern</span>
+            </button>
+          </div>
+          <input type="hidden" id="algorithm" value="rooms" />
         </div>
 
         <div class="control-group">

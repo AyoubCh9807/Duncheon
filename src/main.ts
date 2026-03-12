@@ -362,8 +362,9 @@ function applyTheme(theme: string) {
 }
 
 function toggleControls() {
-  const alg = (document.getElementById("algorithm") as HTMLSelectElement).value;
-  document.getElementById("rooms-controls")!.style.display = (alg === "ca") ? "none" : "block";
+  const alg = (document.getElementById("algorithm") as HTMLInputElement).value;
+  const hideRooms = ["caves", "drunkard", "wfc", "maze"].includes(alg);
+  document.getElementById("rooms-controls")!.style.display = hideRooms ? "none" : "block";
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -374,10 +375,16 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById(id)?.addEventListener("input", updateLabels);
   });
 
-  // Algorithm toggle
-  document.getElementById("algorithm")?.addEventListener("change", () => {
-    toggleControls();
-    generate();
+  // Algorithm selector
+  document.querySelectorAll(".algo-btn[data-algo]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".algo-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const algo = (btn as HTMLElement).dataset.algo!;
+      (document.getElementById("algorithm") as HTMLInputElement).value = algo;
+      toggleControls();
+      generate();
+    });
   });
 
   // Theme dots
